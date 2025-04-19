@@ -4,10 +4,11 @@ from pathlib import Path
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
-    DATABASE_URL: PostgresDsn | None = None
+    DATABASE_URL: PostgresDsn
     ALGORITHM: str
     SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int | None
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    CURRENCY_API_KEY: str
 
 def load_config(path: Path) -> Settings:
    conf = Settings(_env_file=path)

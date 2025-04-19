@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncEngine
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy import select
 from app.db.models.user import Base
 from app.core.config import load_config
@@ -30,17 +30,21 @@ async def user_insert(user: UserInput, session: getConnectDep, password_hash: An
     new_user = User(username= user.username, password=password_hash)
     session.add(new_user)
 
+
 async def user_fetch_from_query(user: str, session: getConnectDep):
     result = await session.get(User, user)
     return result
 
+userFetchFromQueryDep = Annotated[User | None, Depends(user_fetch_from_query)]
 
-async def user_fetch_from_from(user_form: Annotated[OAuth2PasswordRequestForm, Depends()],  session: getConnectDep):
+async def user_fetch_from_form(user_form: Annotated[OAuth2PasswordRequestForm, Depends()], session: getConnectDep):
+    hash_password = get_password_hash(user_form.password)
     query = (
         select(User).where(
             (User.username == user_form.username) &
-            (User.password == user_form.password)
+            (User.password == hash_password)
         )
     )
-    result = session.execute(query)
+    result = await session.execute(query)
     return result.scalars().first()
+userFetchFromFormDep = Annotated[User | None, Depends(user_fetch_from_form)]
