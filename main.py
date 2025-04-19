@@ -10,7 +10,6 @@ app.include_router(
 )
 app.include_router(
     currency.router,
-    prefix='/currency'
 )
 
 

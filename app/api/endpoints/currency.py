@@ -1,11 +1,19 @@
+from sys import prefix
+
 from fastapi import APIRouter, HTTPException, status
 from pathlib import Path
 from app.core.config import load_config
 from app.core.security import getUserFromToken
 from app.db.session import getConnectDep
 from app.db.models.user import User
+from app.utils import external_api
 
 router = APIRouter()
+
+router.include_router(
+    external_api.router,
+    prefix="/currency"
+)
 
 path = Path(r'C:\project1\.env')
 conf = load_config(path)
