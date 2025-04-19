@@ -34,5 +34,4 @@ async def login(result: Annotated[User | None, Depends(user_fetch_from_from)]):
     token = create_token(data_dict, expire_delta)
     return Token(access_token=token, token_type='bearer')
 
-@router.get('/')
 
