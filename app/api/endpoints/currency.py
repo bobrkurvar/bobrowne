@@ -6,6 +6,7 @@ from app.db.models.user import User
 from typing import Annotated
 from app.utils.external_api import ExternalAPI
 
+
 router = APIRouter()
 
 @router.get('/exchange', response_class=JSONResponse)
@@ -17,3 +18,9 @@ async def exchange(username: getUserFromToken, session: getConnectDep,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="I don't know!")
     async with ExternalAPI() as client:
         return await client.convert(amount=amount, to=to, _from=off)
+
+@router.get('/list', response_class=JSONResponse)
+async def currencies_list():
+    async with ExternalAPI() as client:
+        return await client.cur_list
+

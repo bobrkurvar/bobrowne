@@ -1,6 +1,7 @@
 import aiohttp
 from app.core.config import load_config
 from pathlib import Path
+from functools import lru_cache
 
 class NonExistentCurrency(Exception):
     pass
@@ -19,6 +20,7 @@ class ExternalAPI:
     async def cur_list(self):
         if self._cur_list is None:
             async with self.session.get(self.url+'list', headers={'apikey': api_key}) as resp:
+                print('-'*20 + "out" + '-'*20)
                 json_resp = await resp.json()
                 self._cur_list = json_resp
         return self._cur_list
@@ -27,7 +29,8 @@ class ExternalAPI:
         access_currencies = (await self.cur_list).get("currencies").keys()
         if to not in access_currencies or _from not in access_currencies:
             raise NonExistentCurrency
-        async with self.session.get(self.url+'convert', headers={'apikey': api_key}, params={"from": _from, "to": to, "amount": amount}) as resp:
+        async with self.session.get(self.url+'convert',
+                                    headers={'apikey': api_key}, params={"from": _from, "to": to, "amount": amount}) as resp:
             return await resp.json()
 
     async def __aenter__(self):
