@@ -1,13 +1,9 @@
-
 from fastapi import APIRouter, HTTPException, status
 from app.core.security import getUserFromToken
 from app.db.session import getConnectDep
 from app.db.models.user import User
 
-
 router = APIRouter()
-
-
 
 @router.get('/exchange')
 async def exchange(username: getUserFromToken, session: getConnectDep):
