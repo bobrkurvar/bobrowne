@@ -7,14 +7,13 @@ class NonExistentCurrency(Exception):
 
 path = Path(r'C:\project1\.env')
 conf = load_config(path)
-api_key = str(conf.CURRENCY_API_KEY)
+api_key = conf.CURRENCY_API_KEY
 
 class ExternalAPI:
     def __init__(self):
-        self.session = aiohttp.ClientSession()
+        self.session = None
         self.url = 'https://api.apilayer.com/currency_data/'
         self._cur_list = None
-        self._access_currencies = None
 
     @property
     async def cur_list(self):
@@ -24,19 +23,15 @@ class ExternalAPI:
                 self._cur_list = json_resp
         return self._cur_list
 
-    @property
-    def access_currencies(self):
-        if not self._access_currencies:
-            self._access_currencies = self._cur_list['currencies'].keys()
-        return self._access_currencies
-
     async def convert(self, amount: float = 1, to: str = 'RUB', _from: str = 'USD'):
-        if to not in self.access_currencies or _from not in self.access_currencies:
+        access_currencies = (await self.cur_list).get("currencies").keys()
+        if to not in access_currencies or _from not in access_currencies:
             raise NonExistentCurrency
         async with self.session.get(self.url+'convert', headers={'apikey': api_key}, params={"from": _from, "to": to, "amount": amount}) as resp:
             return await resp.json()
 
     async def __aenter__(self):
+        self.session = aiohttp.ClientSession()
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
