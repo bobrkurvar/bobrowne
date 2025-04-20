@@ -14,5 +14,5 @@ async def exchange(username: getUserFromToken, session: getConnectDep,
     user = await session.get(User, username)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="I don't know!")
-    async with ExternalAPI() as session:
-        return session.convert()
+    async with ExternalAPI() as client:
+        return client.convert(to=to, _from=off)

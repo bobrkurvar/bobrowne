@@ -7,22 +7,21 @@ from app.core.config import load_config
 from pathlib import Path
 from datetime import timedelta
 
-
-
 router = APIRouter()
 
 path = Path(r'C:\project1\.env')
 conf = load_config(path)
 access_token_expire_minutes = conf.ACCESS_TOKEN_EXPIRE_MINUTES
 
-@router.post('/register')
+@router.post('/register', dependencies=[Depends(user_insert)])
 async def register(user: UserInput):
-    await user_insert(user)
     return UserOutput(username= user.username)
 
 @router.get('/')
 async def fetch(result: userFetchFromQueryDep):
-    return result.username, result.password if result else "Not found"
+    if result:
+        return result.username, result.password
+    else: "Not found"
 
 @router.post('/token')
 async def login(result: userFetchFromFormDep):

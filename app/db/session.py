@@ -4,11 +4,11 @@ from app.db.models.user import Base
 from app.core.config import load_config
 from pathlib import Path
 from fastapi import Depends
-from typing import Annotated, Any
+from typing import Annotated
 from app.db.models.user import User
 from app.api.schemas.user import UserInput
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
-from app.core.security import get_password_hash
+from app.core.security import get_password_hash, verify
 
 path = Path(r'C:\project1\.env')
 conf = load_config(path)
@@ -28,7 +28,7 @@ async def get_connect():
     async with async_session.begin() as session:
         yield session
 
-getConnectDep = Annotated[Any, Depends(get_connect)]
+getConnectDep = Annotated[async_sessionmaker(), Depends(get_connect)]
 
 async def user_insert(user: UserInput, session: getConnectDep, password_hash: Annotated[str, Depends(get_password_hash)]):
     new_user = User(username= user.username, password=password_hash)
@@ -41,14 +41,13 @@ async def user_fetch_from_query(user: str, session: getConnectDep):
 
 userFetchFromQueryDep = Annotated[User | None, Depends(user_fetch_from_query)]
 
-async def user_fetch_from_form(user_form: Annotated[OAuth2PasswordRequestForm, Depends()], session: getConnectDep):
-    hash_password = get_password_hash(user_form.password)
+async def user_fetch_from_form(user_form: Annotated[OAuth2PasswordRequestForm, Depends()],
+                               session: getConnectDep):
     query = (
-        select(User).where(
-            (User.username == user_form.username) &
-            (User.password == hash_password)
-        )
+        select(User).where(User.username == user_form.username)
     )
-    result = await session.execute(query)
-    return result.scalars().first()
+    result = (await session.execute(query)).scalars().first()
+    if result and verify(user_form.password, result.password):
+        return result
+
 userFetchFromFormDep = Annotated[User | None, Depends(user_fetch_from_form)]

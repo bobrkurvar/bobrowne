@@ -1,7 +1,7 @@
 import jwt
 from jwt.exceptions import InvalidTokenError
-from fastapi.security.oauth2 import OAuth2PasswordBearer
-from passlib.context import CryptContext
+from fastapi.security.oauth2 import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from passlib.hash import bcrypt
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from app.api.schemas.user import UserInput
@@ -10,18 +10,17 @@ from pathlib import Path
 from datetime import timedelta, datetime, timezone
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/token")
-pwd_context = CryptContext(schemes=["bcrypt"])
 path = Path(r'C:\project1\.env')
 conf = load_config(path)
 secret_key = conf.SECRET_KEY
 algorithm = conf.ALGORITHM
 
-def get_password_hash(plain_password: str) -> str:
-    hash_password = pwd_context.hash(plain_password)
+def get_password_hash(user: UserInput) -> str:
+    hash_password = bcrypt.hash(user.password)
     return hash_password
 
 def verify(plain_password: str, password_hash: Annotated[str, Depends(get_password_hash)]) -> bool:
-    return pwd_context.verify(plain_password, password_hash)
+    return bcrypt.verify(plain_password, password_hash)
 
 def create_token(data: dict, expires_delta: timedelta = None) -> str:
     to_encode = data.copy()

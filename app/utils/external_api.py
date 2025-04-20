@@ -20,15 +20,13 @@ class ExternalAPI:
     async def cur_list(self):
         if self._cur_list is None:
             async with self.session.get(self.url+'list', headers={'apikey': api_key}) as resp:
-                print("why?")
                 json_resp = await resp.json()
-                self._cur_list = dict(json_resp)
+                self._cur_list = json_resp
         return self._cur_list
 
     @property
     def access_currencies(self):
         if not self._access_currencies:
-            print("what?")
             self._access_currencies = self._cur_list['currencies'].keys()
         return self._access_currencies
 
