@@ -15,8 +15,9 @@ path = Path(r'C:\project1\.env')
 conf = load_config(path)
 access_token_expire_minutes = conf.ACCESS_TOKEN_EXPIRE_MINUTES
 
-@router.post('/register', dependencies=[Depends(user_insert)])
+@router.post('/register')
 async def register(user: UserInput):
+    await user_insert(user)
     return UserOutput(username= user.username)
 
 @router.get('/')

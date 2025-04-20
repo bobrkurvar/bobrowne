@@ -16,8 +16,8 @@ conf = load_config(path)
 secret_key = conf.SECRET_KEY
 algorithm = conf.ALGORITHM
 
-def get_password_hash(user: UserInput | str) -> str:
-    hash_password = pwd_context.hash(user.password)
+def get_password_hash(plain_password: str) -> str:
+    hash_password = pwd_context.hash(plain_password)
     return hash_password
 
 def verify(plain_password: str, password_hash: Annotated[str, Depends(get_password_hash)]) -> bool:
