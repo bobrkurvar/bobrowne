@@ -5,10 +5,18 @@ from app.db.session import getConnectDep
 from app.db.models.user import User
 from typing import Annotated
 from app.utils.external_api import ExternalAPI
+from app.core.config import load_config
+from pathlib import Path
+
+path = Path(r'C:\project1\.env')
+conf = load_config(path)
+ex_api_url = conf.EXTERNAL_API_URL
 
 router = APIRouter(dependencies=[Depends(ExternalAPI)])
 
-manager = ExternalAPI()
+
+
+manager = ExternalAPI(ex_api_url)
 
 @router.get('/exchange', response_class=JSONResponse)
 async def exchange(username: getUserFromToken, session: getConnectDep,

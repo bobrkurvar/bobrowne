@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     CURRENCY_API_KEY: str
+    EXTERNAL_API_URL: str
 
 def load_config(path: Path) -> Settings:
    conf = Settings(_env_file=path)

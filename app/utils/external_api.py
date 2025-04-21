@@ -1,5 +1,4 @@
 import aiohttp
-from aiohttp import ClientSession
 
 from app.core.config import load_config
 from pathlib import Path
@@ -12,8 +11,8 @@ conf = load_config(path)
 api_key = conf.CURRENCY_API_KEY
 
 class ExternalAPI:
-    def __init__(self):
-        self.url = 'https://api.apilayer.com/currency_data/'
+    def __init__(self, url: str):
+        self.url = url
         self._cur_list = None
         self.session = None
 
