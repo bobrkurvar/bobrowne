@@ -1,7 +1,8 @@
 import aiohttp
+from aiohttp import ClientSession
+
 from app.core.config import load_config
 from pathlib import Path
-from functools import lru_cache
 
 class NonExistentCurrency(Exception):
     pass
@@ -12,9 +13,9 @@ api_key = conf.CURRENCY_API_KEY
 
 class ExternalAPI:
     def __init__(self):
-        self.session = None
         self.url = 'https://api.apilayer.com/currency_data/'
         self._cur_list = None
+        self.session = None
 
     @property
     async def cur_list(self):
@@ -33,21 +34,23 @@ class ExternalAPI:
                                     headers={'apikey': api_key}, params={"from": _from, "to": to, "amount": amount}) as resp:
             return await resp.json()
 
-    async def __aenter__(self):
+    async def start(self):
         self.session = aiohttp.ClientSession()
-        return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.session.close()
+    async def close(self):
+        if not self.session is None:
+            self.session.close()
 
 if __name__ == "__main__":
     import asyncio
     async def main():
-        async with ExternalAPI() as ex:
-            print(await ex.cur_list)
-            print(await ex.cur_list)
-            print(await ex.convert())
-            print(await ex.convert())
+        ex = ExternalAPI()
+        await ex.start()
+        print(await ex.cur_list)
+        print(await ex.cur_list)
+        print(await ex.convert())
+        print(await ex.convert())
+        await ex.close()
 
     asyncio.run(main())
 
