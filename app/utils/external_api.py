@@ -38,7 +38,7 @@ class ExternalAPI:
 
     async def close(self):
         if not self.session is None:
-            self.session.close()
+            await self.session.close()
 
 if __name__ == "__main__":
     import asyncio

@@ -181,3 +181,5 @@ Traceback (most recent call last):
 AttributeError: 'NoneType' object has no attribute 'get'
 ERROR:asyncio:Unclosed client session
 client_session: <aiohttp.client.ClientSession object at 0x00000207D22C9940>
+ERROR:asyncio:Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x000001B7B9429940>
